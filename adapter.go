@@ -39,6 +39,7 @@ type Adapter struct {
 	driverName     string
 	dataSourceName string
 	dbSpecified    bool
+	schema         string
 	engine         *xorm.Engine
 }
 
@@ -52,7 +53,7 @@ func finalizer(a *Adapter) {
 // It's up to whether you have specified an existing DB in dataSourceName.
 // If dbSpecified == true, you need to make sure the DB in dataSourceName exists.
 // If dbSpecified == false, the adapter will automatically create a DB named "casbin".
-func NewAdapter(driverName string, dataSourceName string, dbSpecified ...bool) *Adapter {
+func NewAdapter(driverName string, dataSourceName string, schema string, dbSpecified ...bool) *Adapter {
 	a := &Adapter{}
 	a.driverName = driverName
 	a.dataSourceName = dataSourceName
@@ -63,6 +64,12 @@ func NewAdapter(driverName string, dataSourceName string, dbSpecified ...bool) *
 		a.dbSpecified = dbSpecified[0]
 	} else {
 		panic(errors.New("invalid parameter: dbSpecified"))
+	}
+
+	if len(schema) == 0 {
+		a.schema = "public" //default
+	} else {
+		a.schema = schema
 	}
 
 	// Open the DB, create it if not existed.
@@ -123,6 +130,8 @@ func (a *Adapter) open() {
 			panic(err)
 		}
 	}
+
+	engine.SetSchema(a.schema)
 
 	a.engine = engine
 
@@ -257,23 +266,23 @@ func (a *Adapter) RemoveFilteredPolicy(sec string, ptype string, fieldIndex int,
 	line := CasbinRule{}
 
 	line.PType = ptype
-	if fieldIndex <= 0 && 0 < fieldIndex + len(fieldValues) {
-		line.V0 = fieldValues[0 - fieldIndex]
+	if fieldIndex <= 0 && 0 < fieldIndex+len(fieldValues) {
+		line.V0 = fieldValues[0-fieldIndex]
 	}
-	if fieldIndex <= 1 && 1 < fieldIndex + len(fieldValues) {
-		line.V1 = fieldValues[1 - fieldIndex]
+	if fieldIndex <= 1 && 1 < fieldIndex+len(fieldValues) {
+		line.V1 = fieldValues[1-fieldIndex]
 	}
-	if fieldIndex <= 2 && 2 < fieldIndex + len(fieldValues) {
-		line.V2 = fieldValues[2 - fieldIndex]
+	if fieldIndex <= 2 && 2 < fieldIndex+len(fieldValues) {
+		line.V2 = fieldValues[2-fieldIndex]
 	}
-	if fieldIndex <= 3 && 3 < fieldIndex + len(fieldValues) {
-		line.V3 = fieldValues[3 - fieldIndex]
+	if fieldIndex <= 3 && 3 < fieldIndex+len(fieldValues) {
+		line.V3 = fieldValues[3-fieldIndex]
 	}
-	if fieldIndex <= 4 && 4 < fieldIndex + len(fieldValues) {
-		line.V4 = fieldValues[4 - fieldIndex]
+	if fieldIndex <= 4 && 4 < fieldIndex+len(fieldValues) {
+		line.V4 = fieldValues[4-fieldIndex]
 	}
-	if fieldIndex <= 5 && 5 < fieldIndex + len(fieldValues) {
-		line.V5 = fieldValues[5 - fieldIndex]
+	if fieldIndex <= 5 && 5 < fieldIndex+len(fieldValues) {
+		line.V5 = fieldValues[5-fieldIndex]
 	}
 
 	_, err := a.engine.Delete(line)
