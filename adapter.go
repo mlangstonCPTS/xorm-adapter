@@ -144,10 +144,10 @@ func (a *Adapter) close() {
 }
 
 func (a *Adapter) createTable() {
-	err := a.engine.Sync2(new(CasbinRule))
-	if err != nil {
-		panic(err)
-	}
+	// err := a.engine.Sync2(new(CasbinRule))
+	// if err != nil {
+	// 	panic(err)
+	// }
 }
 
 func (a *Adapter) dropTable() {
